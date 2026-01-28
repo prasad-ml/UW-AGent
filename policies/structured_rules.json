@@ -1,0 +1,177 @@
+{
+  "IDENTITY_VERIFICATION": {
+    "description": "Perform identity verification when customer information cannot be verified through automated systems",
+    "risk_level": "HIGH",
+    "required_agents": ["identity"],
+    "checks": [
+      {
+        "name": "ssn_validation",
+        "description": "Verify SSN against credit bureau records",
+        "tool": "check_identity",
+        "required": true,
+        "threshold": null,
+        "zero_tolerance": false
+      },
+      {
+        "name": "identity_theft_flags_check",
+        "description": "Check for identity theft flags",
+        "tool": "check_identity",
+        "required": true,
+        "threshold": null,
+        "zero_tolerance": false
+      },
+      {
+        "name": "address_history_validation",
+        "description": "Validate address history",
+        "tool": "check_identity",
+        "required": true,
+        "threshold": null,
+        "zero_tolerance": false
+      },
+      {
+        "name": "government_database_cross_reference",
+        "description": "Cross-reference with government databases",
+        "tool": "check_identity",
+        "required": true,
+        "threshold": null,
+        "zero_tolerance": false
+      }
+    ],
+    "decision_criteria": {
+      "approval_condition": "all_checks_pass",
+      "min_confidence": 0.8,
+      "dti_threshold": null,
+      "zero_tolerance_checks": [],
+      "requires_manual_signoff": false
+    },
+    "workflow_config": {
+      "parallel_execution": false,
+      "timeout_seconds": 30,
+      "retry_on_failure": true,
+      "cascade_mode": false
+    }
+  },
+  "INCOME_VALIDATION": {
+    "description": "Validate stated income when it exceeds normal thresholds or lacks documentation",
+    "risk_level": "MEDIUM",
+    "required_agents": ["income"],
+    "checks": [
+      {
+        "name": "employment_verification",
+        "description": "Verify employment status",
+        "tool": "verify_income",
+        "required": true,
+        "threshold": null,
+        "zero_tolerance": false
+      },
+      {
+        "name": "income_documentation_validation",
+        "description": "Validate income documentation",
+        "tool": "verify_income",
+        "required": true,
+        "threshold": null,
+        "zero_tolerance": false
+      },
+      {
+        "name": "income_stability_check",
+        "description": "Check income stability (3+ months)",
+        "tool": "verify_income",
+        "required": true,
+        "threshold": "3_months",
+        "zero_tolerance": false
+      },
+      {
+        "name": "dti_calculation",
+        "description": "Calculate DTI ratio (must be < 43%)",
+        "tool": "verify_income",
+        "required": true,
+        "threshold": 0.43,
+        "zero_tolerance": false
+      }
+    ],
+    "decision_criteria": {
+      "approval_condition": "income_verified_and_dti_valid",
+      "min_confidence": 0.75,
+      "dti_threshold": 0.43,
+      "zero_tolerance_checks": [],
+      "requires_manual_signoff": false
+    },
+    "workflow_config": {
+      "parallel_execution": false,
+      "timeout_seconds": 20,
+      "retry_on_failure": false,
+      "cascade_mode": false
+    }
+  },
+  "FRAUD_CHECK": {
+    "description": "Investigate potential fraud indicators flagged by the system",
+    "risk_level": "CRITICAL",
+    "required_agents": ["fraud"],
+    "checks": [
+      {
+        "name": "ofac_screening",
+        "description": "Check OFAC sanctions list",
+        "tool": "check_ofac",
+        "required": true,
+        "threshold": null,
+        "zero_tolerance": true
+      },
+      {
+        "name": "credit_inquiry_pattern_analysis",
+        "description": "Verify recent credit inquiries pattern",
+        "tool": "check_fraud_indicators",
+        "required": true,
+        "threshold": null,
+        "zero_tolerance": false
+      },
+      {
+        "name": "application_velocity_check",
+        "description": "Analyze application velocity",
+        "tool": "check_fraud_indicators",
+        "required": false,
+        "threshold": null,
+        "zero_tolerance": false
+      },
+      {
+        "name": "device_ip_fingerprint",
+        "description": "Cross-check device/IP fingerprint",
+        "tool": "check_fraud_indicators",
+        "required": false,
+        "threshold": null,
+        "zero_tolerance": false
+      }
+    ],
+    "decision_criteria": {
+      "approval_condition": "no_fraud_indicators",
+      "min_confidence": 0.95,
+      "dti_threshold": null,
+      "zero_tolerance_checks": ["ofac_screening"],
+      "requires_manual_signoff": false
+    },
+    "workflow_config": {
+      "parallel_execution": true,
+      "timeout_seconds": 45,
+      "retry_on_failure": false,
+      "cascade_mode": false
+    }
+  },
+  "HIGH_RISK_PROFILE": {
+    "description": "Additional scrutiny for high-risk applicants",
+    "risk_level": "HIGH",
+    "required_agents": ["identity", "income", "fraud"],
+    "checks": [],
+    "decision_criteria": {
+      "approval_condition": "all_agents_pass",
+      "min_confidence": 0.9,
+      "dti_threshold": null,
+      "zero_tolerance_checks": [],
+      "requires_manual_signoff": true
+    },
+    "workflow_config": {
+      "parallel_execution": false,
+      "timeout_seconds": 60,
+      "retry_on_failure": false,
+      "cascade_mode": true
+    }
+  }
+}
