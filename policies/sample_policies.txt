@@ -1,0 +1,39 @@
+REVIEW_RULE: IDENTITY_VERIFICATION
+Description: Perform identity verification when customer information cannot be verified through automated systems
+Checks Required:
+- Verify SSN against credit bureau records
+- Check for identity theft flags
+- Validate address history
+- Cross-reference with government databases
+Risk Level: HIGH
+Decision Criteria: All checks must pass for approval
+
+REVIEW_RULE: INCOME_VALIDATION
+Description: Validate stated income when it exceeds normal thresholds or lacks documentation
+Checks Required:
+- Verify employment status
+- Validate income documentation
+- Check income stability (3+ months)
+- Calculate DTI ratio (must be < 43%)
+Risk Level: MEDIUM
+Decision Criteria: Income must be verified and DTI within limits
+
+REVIEW_RULE: FRAUD_CHECK
+Description: Investigate potential fraud indicators flagged by the system
+Checks Required:
+- Check OFAC sanctions list
+- Verify recent credit inquiries pattern
+- Analyze application velocity
+- Cross-check device/IP fingerprint
+Risk Level: CRITICAL
+Decision Criteria: No fraud indicators allowed for approval
+
+REVIEW_RULE: HIGH_RISK_PROFILE
+Description: Additional scrutiny for high-risk applicants
+Checks Required:
+- Comprehensive identity verification
+- Enhanced income validation
+- Fraud screening
+- Review past credit behavior
+Risk Level: HIGH
+Decision Criteria: Must pass all checks with manual review sign-off
